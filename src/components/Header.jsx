@@ -82,25 +82,29 @@ function Header() {
 
 console.log(location,error);
 
-    const getLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setLocation({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
-            alert(latitude,longitude)
-          },
-          (error) => {
-            alert(error)
-            setError(error.message);
-          }
-        );
-      } else {
-        setError('Geolocation is not supported by this browser.');
+const getLocation = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log(position);
+        setLocation({
+          ...location,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+
+        // Format the alert message properly
+        alert(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+      },
+      (error) => {
+        setError(error.message);
       }
-    }
+    );
+  } else {
+    setError('Geolocation is not supported by this browser.');
+  }
+};
+
 
   return (
     <div>
