@@ -1,13 +1,13 @@
 import React from 'react'
 import Header from '../components/Header'
 
-function Home() {
+function Auth() {
   return (
     <div>
-        <Header/>
-        Home
+      <Header/>
+      Auth
     </div>
   )
 }
 
-export default Home
+export default Auth

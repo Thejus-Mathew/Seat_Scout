@@ -1,13 +1,13 @@
 import React from 'react'
 import Header from '../components/Header'
 
-function Home() {
+function Profile() {
   return (
     <div>
         <Header/>
-        Home
+        Profile
     </div>
   )
 }
 
-export default Home
+export default Profile

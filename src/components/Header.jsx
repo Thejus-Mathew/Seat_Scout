@@ -1,24 +1,111 @@
 import './Header.css'
 import favIcon from '../images/favIcon.jpg'
 import { MDBInputGroup } from 'mdb-react-ui-kit'
-import { useState } from 'react'
-import { Offcanvas } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
+import { Button, Modal, Offcanvas } from 'react-bootstrap'
 import avatar from '../images/avatar.png'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import ahmedabad from '../images/ahmedabad.avif'
+import banglore from '../images/banglore.png'
+import chandigarh from '../images/chandigarh.png'
+import chennai from '../images/chennai.avif'
+import delhi from '../images/delhi.avif'
+import hyderabad from '../images/hyderabad.png'
+import kochi from '../images/kochi.avif'
+import kolkata from '../images/kolkata.avif'
+import mumbai from '../images/mumbai.png'
+import pune from '../images/pune.png'
 
 
 function Header() {
     const[logged,setLogged]=useState(true)
     const [isMobile,setIsMobile] = useState(window.innerWidth<1000?true:false)
-
+    const navigate = useNavigate()
     const [showOC, setShowOC] = useState(false);
 
     const handleCloseOC = () => setShowOC(false);
     const handleShowOC = () => setShowOC(true);
 
+    const [showM, setShowM] = useState(false);
+
+    const handleCloseM = () => setShowM(false);
+    const [cities,setCities]=useState([])
+    const [city,setCity]=useState("Kochi")
+    const[searchCity,setSearchCity] = useState("")
+
+    const [location, setLocation] = useState({ latitude: null, longitude: null });
+    const [error, setError] = useState(null);
+
+
+    const handleShowM = () => {
+      setCities([])
+      for(let i =1;i<10;i++){
+        setTimeout(()=>{
+          getCities(`${i}`)
+        },1000)
+      }
+      setShowM(true)
+    }
+
+
+
+    const getCities = async (n)=>{
+      const options = {
+        method: 'GET',
+        url: 'https://geo-location-data1.p.rapidapi.com/api/geo/get-cities',
+        params: {
+          country_id: '127',
+          pageSize: '500',
+          page: n
+        },
+        headers: {
+          'x-rapidapi-key': 'd1ab853d80mshab2e1e3babb4062p13ccfajsn67ebe87538a1',
+          'x-rapidapi-host': 'geo-location-data1.p.rapidapi.com'
+        }
+      };
+      
+      try {
+        const response = await axios.request(options);
+        setCities(old=>old.concat(response.data.data.map(item=>item.name)))        
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+
+    const changeCity = (item)=>{
+      setCity(item)
+      setSearchCity("")
+      setShowM(false)
+    }
+
+console.log(location,error);
+
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setLocation({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            });
+            alert(latitude,longitude)
+          },
+          (error) => {
+            alert(error)
+            setError(error.message);
+          }
+        );
+      } else {
+        setError('Geolocation is not supported by this browser.');
+      }
+    }
+
   return (
     <div>
       <div className={`container d-flex ${isMobile?"flex-wrap":""} align-items-center py-3 border-bottom`}>
-        <div className="logo fs-3 d-flex align-items-center">
+        <div className="logo fs-3 d-flex align-items-center" style={{cursor:"pointer"}} onClick={()=>navigate('/')}>
             <span>Seat</span>
             <img src={favIcon} className='m-1 my-2' width={'40px'} alt="" />
             <span>Scout</span>
@@ -31,7 +118,7 @@ function Header() {
                 isMobile?<button className='btn' onClick={handleShowOC}><i className="fa-solid fa-bars fa-xl"></i></button>
                 :<div className='d-flex align-items-center'>
                 <div className="place">
-                    <button className='btn shadow-0'>Kochi <i className="fa-solid fa-angle-down"></i></button>
+                    <button className='btn shadow-0' onClick={handleShowM}>{city} <i className="fa-solid fa-angle-down"></i></button>
                 </div>
                 {
                     logged?
@@ -39,7 +126,7 @@ function Header() {
                         <button className='btn ms-2 btn-lg'><i className="fa-solid fa-user fa-xl pe-3"></i> Thejus</button>
                     </div>:
                     <div className="profile d-flex align-items-center">
-                        <button className='btn btn-dark ms-2'>Sign In</button>
+                        <button className='btn btn-dark ms-2' onClick={()=>navigate('/auth')}>Sign In</button>
                         <button className='btn px-3 ms-2' onClick={handleShowOC}><i className="fa-solid fa-bars fa-xl"></i></button>
                     </div>
                 }
@@ -60,18 +147,124 @@ function Header() {
                 </div>
                 <div className="name">
                   <h2 className='fs-4'>Thejus Mathew</h2>
-                  <p className='fs-6'>Edit Profile <i className="fa-solid fa-angle-right"></i></p>
+                  <p className='fs-6' style={{cursor:"pointer"}} onClick={()=>navigate('/profile')}>Edit Profile <i className="fa-solid fa-angle-right"></i></p>
                 </div>
               </div>
-              :<></>
+              :
+              <div className='d-flex flex-column gap-1'>
+                <>Hey!</>
+                <button className='btn btn-dark' onClick={()=>navigate('/auth')}>Register / Login</button>
+              </div>
             }
           </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          Some text as placeholder. In real life you can have the elements you
-          have chosen. Like, text, images, lists, etc.
+          <div className="place d-flex align-items-center border-bottom pb-3">
+            Location <button className='btn shadow-0' onClick={handleShowM}>{city} <i className="fa-solid fa-angle-down"></i></button>
+          </div>
+          <div className='border-bottom py-3'>
+            Movies
+          </div>
+          <div className='border-bottom py-3'>
+            Theatres
+          </div>
+          <div className='border-bottom py-3'>
+            Bookings
+          </div>
+          
+          {
+            logged?<div className='text-center mt-5'><button className='btn btn-outline-danger w-75' onClick={()=>setLogged(false)}>Sign Out</button></div>:<></>
+          }
         </Offcanvas.Body>
       </Offcanvas>
+
+
+
+      <Modal show={showM} onHide={handleCloseM} size={"xl"}>
+        <Modal.Header>
+          <Modal.Title style={{width:"100%"}}>
+            <MDBInputGroup noBorder textBefore={<i className="fa-solid fa-magnifying-glass fa-xl"></i>}>
+                <input className='form-control' type='text' placeholder='Search for your City' value={searchCity} onChange={(e)=>setSearchCity(e.target.value)} />
+            </MDBInputGroup>
+            <>
+              {
+                searchCity?
+                <div className='position-absolute border bg-light ms-5 form-control' style={{zIndex:"4",width:"93%"}}>
+                  {
+                    cities.filter(item=>item.toLowerCase().search(searchCity.toLowerCase())!=-1).slice(0,7).map((item,index)=>(
+                      <p key={index} onClick={()=>changeCity(item)} style={{cursor:"pointer"}}>{item}</p>
+                    ))
+                  }
+                </div>
+                :<></>
+              }
+            </>
+            <button className='btn shadow-0 text-danger mt-3' onClick={getLocation}><i className="fa-solid fa-location-crosshairs fa-lg"></i> Detect My Location</button>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="popular border-bottom pb-2">
+            <p className='text-center m-0 p-0'>Popular Cities</p>
+            <div className="row mt-2">
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Mumbai")} style={{cursor:"pointer"}}>
+                <img src={mumbai} alt="" />
+                <span>Mumbai</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Kochi")} style={{cursor:"pointer"}}>
+                <img src={kochi} alt="" />
+                <span>Kochi</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Bangalore")} style={{cursor:"pointer"}}>
+                <img src={banglore} alt="" />
+                <span>Bangalore</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Hyderabad")} style={{cursor:"pointer"}}>
+                <img src={hyderabad} alt="" />
+                <span>Hyderabad</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Chennai")} style={{cursor:"pointer"}}>
+                <img src={chennai} alt="" />
+                <span>Chennai</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Pune")} style={{cursor:"pointer"}}>
+                <img src={pune} alt="" />
+                <span>Pune</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Kolkata")} style={{cursor:"pointer"}}>
+                <img src={kolkata} alt="" />
+                <span>Kolkata</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Delhi")} style={{cursor:"pointer"}}>
+                <img src={delhi} alt="" />
+                <span>Delhi</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Chandigarh")} style={{cursor:"pointer"}}>
+                <img src={chandigarh} alt="" />
+                <span>Chandigarh</span>
+              </div>
+              <div className="col d-flex flex-column align-items-center" onClick={()=>changeCity("Ahmedabad")} style={{cursor:"pointer"}}>
+                <img src={ahmedabad} alt="" />
+                <span>Ahmedabad</span>
+              </div>
+            </div>
+          </div>
+          <div className="other">
+            <p className='text-center mt-3'>Other Cities</p>
+            <div className="contain border d-flex flex-wrap" style={{width:"100%",height:"300px",overflow:"scroll"}}>
+              {
+                cities?.length>0?cities.sort().map((item,index)=>(
+                  <div key={index} style={{height:"30px",cursor:"pointer"}}  className={`text-center ${isMobile?"w-50":"w-25"}`} onClick={()=>changeCity(item)}>{item}</div>
+                )):<></>
+              }
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseM}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
 
     </div>
