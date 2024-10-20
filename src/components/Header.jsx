@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { Button, Modal, Offcanvas } from 'react-bootstrap'
 import avatar from '../images/avatar.png'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import ahmedabad from '../images/ahmedabad.avif'
 import banglore from '../images/banglore.png'
 import chandigarh from '../images/chandigarh.png'
@@ -16,11 +15,13 @@ import kochi from '../images/kochi.avif'
 import kolkata from '../images/kolkata.avif'
 import mumbai from '../images/mumbai.png'
 import pune from '../images/pune.png'
+import { Flip, toast ,ToastContainer} from 'react-toastify'
+import { allCities } from '../assets/allCities'
 
 
 function Header() {
     const[logged,setLogged]=useState(true)
-    const [isMobile,setIsMobile] = useState(window.innerWidth<1000?true:false)
+    const [isMobile] = useState(window.innerWidth<1000?true:false)
     const navigate = useNavigate()
     const [showOC, setShowOC] = useState(false);
 
@@ -29,48 +30,19 @@ function Header() {
 
     const [showM, setShowM] = useState(false);
 
-    const handleCloseM = () => setShowM(false);
-    const [cities,setCities]=useState([])
-    const [city,setCity]=useState("Kochi")
+    const handleCloseM = () => {
+      if(city){
+        setShowM(false)
+      }
+    };
+
+
+    const [cities,setCities]=useState(allCities)
+    const [city,setCity]=useState("")
     const[searchCity,setSearchCity] = useState("")
 
-    const [location, setLocation] = useState({ latitude: null, longitude: null });
-    const [error, setError] = useState(null);
-
-
     const handleShowM = () => {
-      setCities([])
-      for(let i =1;i<10;i++){
-        setTimeout(()=>{
-          getCities(`${i}`)
-        },1000)
-      }
       setShowM(true)
-    }
-
-
-
-    const getCities = async (n)=>{
-      const options = {
-        method: 'GET',
-        url: 'https://geo-location-data1.p.rapidapi.com/api/geo/get-cities',
-        params: {
-          country_id: '127',
-          pageSize: '500',
-          page: n
-        },
-        headers: {
-          'x-rapidapi-key': 'd1ab853d80mshab2e1e3babb4062p13ccfajsn67ebe87538a1',
-          'x-rapidapi-host': 'geo-location-data1.p.rapidapi.com'
-        }
-      };
-      
-      try {
-        const response = await axios.request(options);
-        setCities(old=>old.concat(response.data.data.map(item=>item.name)))        
-      } catch (error) {
-        console.error(error);
-      }
     }
 
 
@@ -80,34 +52,48 @@ function Header() {
       setShowM(false)
     }
 
-console.log(location,error);
 
-const getLocation = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        console.log(position);
-        setLocation({
-          ...location,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-
-        // Format the alert message properly
-        alert(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
-      },
-      (error) => {
-        setError(error.message);
+    const getLocation =async () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            if(!position.coords.latitude && !position.coords.longitude){
+              toast.info("location cannot be obtained")
+            }else{
+              setShowM(false)
+              fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&limit=5&appid=b9b35dd7c967c2a9827580e8c51cbe91`)
+              .then(response=>response.json())
+              .then(data=>setCity(data[0].name))
+              .catch(err=>console.log(err))
+            }
+          },
+          (error) => {
+            toast.info("location cannot be obtained")
+          }
+        )
+      } else {
+        toast.info("location cannot be obtained")
       }
-    );
-  } else {
-    setError('Geolocation is not supported by this browser.');
-  }
-};
+    }
+
+    useEffect(()=>{
+      if(!city){
+        setShowM(true)
+      }
+      setShowOC(false)
+    },[city])
+
+
+
+
+
+
+
 
 
   return (
     <div>
+      <ToastContainer position="top-center" theme="colored" transition={Flip} autoClose={2500} />
       <div className={`container d-flex ${isMobile?"flex-wrap":""} align-items-center py-3 border-bottom`}>
         <div className="logo fs-3 d-flex align-items-center" style={{cursor:"pointer"}} onClick={()=>navigate('/')}>
             <span>Seat</span>
@@ -122,12 +108,12 @@ const getLocation = () => {
                 isMobile?<button className='btn' onClick={handleShowOC}><i className="fa-solid fa-bars fa-xl"></i></button>
                 :<div className='d-flex align-items-center'>
                 <div className="place">
-                    <button className='btn shadow-0' onClick={handleShowM}>{city} <i className="fa-solid fa-angle-down"></i></button>
+                    <button className='btn shadow-0' style={{width:"170px"}} onClick={handleShowM}>{city} <i className="fa-solid fa-angle-down"></i></button>
                 </div>
                 {
                     logged?
                     <div className="profile d-flex align-items-center" onClick={handleShowOC}>
-                        <button className='btn ms-2 btn-lg'><i className="fa-solid fa-user fa-xl pe-3"></i> Thejus</button>
+                        <button className='btn ms-2 btn-lg ' style={{width:"170px"}}><i className="fa-solid fa-user fa-xl me-3"></i> Thejus</button>
                     </div>:
                     <div className="profile d-flex align-items-center">
                         <button className='btn btn-dark ms-2' onClick={()=>navigate('/auth')}>Sign In</button>
