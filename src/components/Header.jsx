@@ -20,7 +20,7 @@ import { allCities } from '../assets/allCities'
 
 
 function Header() {
-    const[logged,setLogged]=useState(true)
+    const[logged,setLogged]=useState(false)
     const [isMobile] = useState(window.innerWidth<1000?true:false)
     const navigate = useNavigate()
     const [showOC, setShowOC] = useState(false);
@@ -116,7 +116,7 @@ function Header() {
                         <button className='btn ms-2 btn-lg ' style={{width:"170px"}}><i className="fa-solid fa-user fa-xl me-3"></i> Thejus</button>
                     </div>:
                     <div className="profile d-flex align-items-center">
-                        <button className='btn btn-dark ms-2' onClick={()=>navigate('/auth')}>Sign In</button>
+                        <button className='btn btn-dark ms-2' style={{width:"120px"}} onClick={()=>navigate('/auth')}>Sign In</button>
                         <button className='btn px-3 ms-2' onClick={handleShowOC}><i className="fa-solid fa-bars fa-xl"></i></button>
                     </div>
                 }
