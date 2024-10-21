@@ -1,14 +1,13 @@
 import React from 'react'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
 
-function Auth() {
+function Movie() {
   return (
     <div>
       <Header/>
-      <Footer/>
+      Movie
     </div>
   )
 }
 
-export default Auth
+export default Movie

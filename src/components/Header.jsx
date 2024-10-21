@@ -38,7 +38,7 @@ function Header() {
 
 
     const [cities,setCities]=useState(allCities)
-    const [city,setCity]=useState("")
+    const [city,setCity]=useState("Kochi")
     const[searchCity,setSearchCity] = useState("")
 
     const handleShowM = () => {
@@ -152,13 +152,13 @@ function Header() {
           <div className="place d-flex align-items-center border-bottom pb-3">
             Location <button className='btn shadow-0' onClick={handleShowM}>{city} <i className="fa-solid fa-angle-down"></i></button>
           </div>
-          <div className='border-bottom py-3'>
+          <div className='border-bottom py-3' onClick={()=>navigate("/movies")} style={{cursor:"pointer"}}>
             Movies
           </div>
-          <div className='border-bottom py-3'>
+          <div className='border-bottom py-3 ' onClick={()=>navigate("/theatres")} style={{cursor:"pointer"}}>
             Theatres
           </div>
-          <div className='border-bottom py-3'>
+          <div className='border-bottom py-3' onClick={()=>navigate("/bookings")} style={{cursor:"pointer"}}>
             Bookings
           </div>
           
@@ -250,7 +250,7 @@ function Header() {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseM}>
+          <Button variant="secondary" disabled={!city?true:false} onClick={handleCloseM}>
             Close
           </Button>
         </Modal.Footer>

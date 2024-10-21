@@ -1,14 +1,13 @@
 import React from 'react'
 import Header from '../components/Header'
-import Footer from '../components/Footer'
 
-function Auth() {
+function Bookings() {
   return (
     <div>
       <Header/>
-      <Footer/>
+      Bookings
     </div>
   )
 }
 
-export default Auth
+export default Bookings
